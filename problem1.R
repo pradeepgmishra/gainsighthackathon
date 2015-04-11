@@ -8,7 +8,7 @@ cormethod = "kendall"
 
 features <- c("rooms_rt","value_rt","location_rt","frontdesk_rt","service_rt","buss_service_rt","clean_rt","sleep_rt")
 
-positive = F
+positive = T
 negative = F
 single <- F
 
