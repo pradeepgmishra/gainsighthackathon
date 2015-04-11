@@ -6,7 +6,7 @@ library(tidyr)
 path <-  "/Users/pradeepmishra/GAINSIGHT/Prob1/json_format/json/"
 cormethod = "kendall"
 
-features <- c("rooms_rt","value_rt","location_rt","frontdesk_rt","service_rt","buss_service_rt","clean_rt")
+features <- c("rooms_rt","value_rt","location_rt","frontdesk_rt","service_rt","buss_service_rt","clean_rt","sleep_rt")
 
 positive = F
 negative = F
@@ -114,6 +114,7 @@ ratingCor <- function(hotelid,data){
    frontdesk <- NA
    value <- NA
    rooms <- NA
+   sleep <- NA
    
   } else {
   
@@ -125,12 +126,13 @@ ratingCor <- function(hotelid,data){
   frontdesk      <- if(is.null(data$frontdesk_rt) || sum(!is.na(data$frontdesk_rt)) == 0) { NA } else cor(data$overall_rt,data$frontdesk_rt,use="complete",method=cormethod)
   value          <- if(is.null(data$value_rt) || sum(!is.na(data$value_rt)) == 0) { NA } else cor(data$overall_rt,data$value_rt,use="complete",method=cormethod)
   rooms          <- if(is.null(data$rooms_rt) || sum(!is.na(data$rooms_rt)) == 0) { NA } else cor(data$overall_rt,data$rooms_rt,use="complete",method=cormethod)
+  sleep          <- if(is.null(data$sleep_rt) || sum(!is.na(data$sleep_rt)) == 0) { NA } else cor(data$overall_rt,data$sleep_rt,use="complete",method=cormethod)
   
   }
     if(is.null(hotelid)){
-    corDF <- data.frame(data$hotel[1],buss_service,clean ,frontdesk ,value,rooms ,location )  
+    corDF <- data.frame(data$hotel[1],service,buss_service,clean ,frontdesk ,value,rooms ,location,sleep )  
   } else {
-    corDF <- data.frame(hotelid,service,buss_service,clean ,frontdesk ,value,rooms ,location )
+    corDF <- data.frame(hotelid,service,buss_service,clean ,frontdesk ,value,rooms ,location,sleep )
   }
   
 }
@@ -168,6 +170,9 @@ readData <- function(hotelid){
     if(substring(cols[n],1,5)=="Check"){
       cols[n] <- "frontdesk_rt"
     }
+    if(substring(cols[n],1,5)=="Sleep"){
+      cols[n] <- "sleep_rt"
+    }
   }
   colnames(reviews) <- cols
   
@@ -195,6 +200,7 @@ readData <- function(hotelid){
   value_rt = if(length(reviews$value_rt)==0){ rep(NA,rows) } else reviews$value_rt
   rooms_rt = if(length(reviews$rooms_rt)==0){ rep(NA,rows) } else reviews$rooms_rt
   location_rt = if(length(reviews$location_rt)==0){ rep(NA,rows) } else reviews$location_rt
+  sleep_rt = if(length(reviews$sleep_rt)==0){ rep(NA,rows) } else reviews$sleep_rt                    
   
   reviewsNew <- data.frame(hotel,
                            date,
@@ -207,7 +213,7 @@ readData <- function(hotelid){
                            overall_rt,
                            value_rt,
                            rooms_rt,
-                           location_rt)
+                           location_rt,sleep_rt)
   reviewsNew
 }
 
@@ -290,7 +296,7 @@ exploreSample <- function(noofsamples){
 }
 
 writeGraph <- function(){
-  ids <- as.integer(readLines(file(paste(path,"fileids.csv",sep=""))))  
+  ids <- getsampleids(3000)
   n <- 1;
   first <- T
   while(n < length(ids)){
@@ -301,11 +307,11 @@ writeGraph <- function(){
     try(FF <- ratingCor(NULL,dataDF),T);
     #print(head(FF))
     if(first){
-      try(write.table(FF, file = "corbyhotels.csv", sep = ",", 
+      try(write.table(FF, file = "corbyhotels3000.csv", sep = ",", 
                       col.names = TRUE, append=TRUE),T)
       first <- F
     }else{
-      try(write.table(FF, file = "corbyhotels.csv", sep = ",", 
+      try(write.table(FF, file = "corbyhotels3000.csv", sep = ",", 
                       col.names = FALSE, append=TRUE),T)
     }
     
