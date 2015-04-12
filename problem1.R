@@ -2,13 +2,14 @@ library(lubridate)
 library(jsonlite)
 library(dplyr)
 library(tidyr)
+library(ggplot2)
 
 path <-  "/Users/pradeepmishra/GAINSIGHT/Prob1/json_format/json/"
 cormethod = "kendall"
 
 features <- c("rooms_rt","value_rt","location_rt","frontdesk_rt","service_rt","buss_service_rt","clean_rt","sleep_rt")
 
-positive = T
+positive = F
 negative = F
 single <- F
 
@@ -296,7 +297,8 @@ exploreSample <- function(noofsamples){
 }
 
 writeGraph <- function(){
-  ids <- getsampleids(3000)
+  #ids <- getsampleids(3000)
+  ids <- as.integer(readLines(file(paste(path,"fileids.csv",sep=""))))  
   n <- 1;
   first <- T
   while(n < length(ids)){
@@ -307,11 +309,11 @@ writeGraph <- function(){
     try(FF <- ratingCor(NULL,dataDF),T);
     #print(head(FF))
     if(first){
-      try(write.table(FF, file = "corbyhotels3000.csv", sep = ",", 
+      try(write.table(FF, file = "corbyhotelsAll.csv", sep = ",", 
                       col.names = TRUE, append=TRUE),T)
       first <- F
     }else{
-      try(write.table(FF, file = "corbyhotels3000.csv", sep = ",", 
+      try(write.table(FF, file = "corbyhotelsAll.csv", sep = ",", 
                       col.names = FALSE, append=TRUE),T)
     }
     
@@ -341,6 +343,36 @@ writeGraph2 <- function(){
     }
     
     n <- n+1;
+  }
+    
+}
+
+plots <- function(){
+  for(n in getsampleids(100)){
+    print(n)
+    df <- readData(n)
+    print(df)
+    for(feature in features){
+      png(file = paste(n,feature,".png",sep=""))
+      plot(density(df$overall_rt,colour = df$feature))
+      dev.off()
+    }
+    
+  }
+  
+}
+
+plot2 <- function(){
+  for(n in getsampleids(100)){
+    print(n)
+    df <- readData(n)
+    print(df)
+    for(feature in features){
+      png(file = paste(n,feature,".png",sep=""))
+      plot(density(df$overall_rt,colour = df$feature))
+    }
+      dev.off()
+    
   }
   
 }
